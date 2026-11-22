@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perennial — notes that grow with you</title>
+<meta name="description" content="Perennial is a calm, private home for your notes, grids and plans. Write, organize and share across Android, Windows, Mac and the web.">
+<meta name="theme-color" content="#faf7f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1613" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="Perennial — notes that grow with you">
+<meta property="og:description" content="A calm, private home for your notes, grids and plans. Now in closed testing.">
+<meta property="og:image" content="assets/icon-512.png">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Roboto+Flex:opsz,wght@8..144,300..600&family=Material+Symbols+Rounded:opsz,wght,FILL@24,300..400,0..1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf7f4;--bg-2:#f3ece5;--card:#fffdfb;--ink:#2e2620;--muted:#6b6058;--soft:#8c7f75;
+  --brown:#91603b;--brown-ink:#7a4f30;--cream:#fdf8f4;--tint:#f4e4d6;--tint-2:#ead6c4;
+  --sage:#a9b99a;--sage-tint:#e6eddc;--sea:#9cc2cf;--rose:#e8c2bd;
+  --line:#e8ded5;--shadow:0 1px 2px rgb(60 35 15/.05),0 14px 36px -16px rgb(80 45 20/.22);
+  --shadow-lg:0 2px 8px rgb(60 35 15/.06),0 40px 80px -30px rgb(80 45 20/.35);
+  --ease:cubic-bezier(.22,1,.36,1);
+  --display:"Nunito",system-ui,sans-serif;--ui:"Roboto Flex",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#1a1613;--bg-2:#221d19;--card:#26201b;--ink:#efe6df;--muted:#b9aca2;--soft:#988a7f;
+  --brown:#e2b896;--brown-ink:#eec7a8;--tint:#3a2c22;--tint-2:#4a3829;
+  --sage:#7d8f6e;--sage-tint:#2b3326;--sea:#4f7482;--rose:#6e4742;
+  --line:#3a322c;--shadow:0 1px 2px rgb(0 0 0/.3),0 14px 36px -16px rgb(0 0 0/.6);
+  --shadow-lg:0 2px 8px rgb(0 0 0/.35),0 40px 80px -30px rgb(0 0 0/.7);
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 var(--ui)}
+main{overflow-x:clip}
+img,video{max-width:100%;display:block}
+a{color:var(--brown)}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;letter-spacing:-.01em}
+.i{font-family:"Material Symbols Rounded";font-weight:350;font-size:22px;line-height:1;font-variation-settings:"FILL" 0;display:inline-block;user-select:none;flex:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* ===== Ambient background ===== */
+.sky{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;animation:drift 28s ease-in-out infinite alternate}
+.orb.a{width:520px;height:520px;background:var(--tint);top:-140px;left:-120px}
+.orb.b{width:460px;height:460px;background:var(--sage-tint);top:30%;right:-160px;animation-duration:34s;animation-delay:-8s}
+.orb.c{width:380px;height:380px;background:var(--rose);bottom:-120px;left:20%;opacity:.3;animation-duration:40s;animation-delay:-16s}
+@keyframes drift{to{transform:translate(60px,40px) scale(1.12)}}
+.leaf{position:absolute;top:-40px;width:22px;height:22px;opacity:0;animation:fall linear infinite}
+.leaf svg,.star svg{width:100%;height:100%;fill:var(--brown);opacity:.22}
+.stars{position:absolute;top:0;left:0;width:100%;z-index:-1;overflow:hidden;pointer-events:none}
+.star{position:absolute;opacity:var(--o);transform:rotate(var(--r));animation:twinkle var(--d) ease-in-out var(--dl) infinite}
+.star svg{opacity:1}
+@keyframes twinkle{0%,100%{opacity:var(--o);transform:rotate(var(--r)) scale(1)}50%{opacity:calc(var(--o) * .3);transform:rotate(calc(var(--r) + 12deg)) scale(.85)}}
+@keyframes fall{
+  0%{opacity:0;transform:translate(0,0) rotate(0)}
+  10%{opacity:1}
+  50%{transform:translate(60px,50vh) rotate(160deg)}
+  90%{opacity:1}
+  100%{opacity:0;transform:translate(-30px,105vh) rotate(320deg)}
+}
+
+/* ===== Top bar ===== */
+.top{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);background:color-mix(in srgb,var(--bg) 72%,transparent);border-bottom:1px solid transparent;transition:border-color .3s}
+.top.scrolled{border-bottom-color:var(--line)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font:800 22px var(--display);user-select:none}
+.brand img{width:36px;height:36px;transition:transform .5s var(--ease)}
+.brand:hover img{transform:rotate(-8deg) scale(1.06)}
+.spacer{flex:1}
+.tabs{position:relative;display:flex;background:var(--bg-2);border-radius:999px;padding:4px}
+.tabs a{position:relative;z-index:1;padding:7px 16px;border-radius:999px;text-decoration:none;color:var(--muted);font:600 15px var(--ui);transition:color .25s}
+.tabs a[aria-current="page"]{color:var(--ink)}
+.tabs .pill{position:absolute;top:4px;bottom:4px;left:0;border-radius:999px;background:var(--card);box-shadow:var(--shadow);transition:transform .45s var(--ease),width .45s var(--ease)}
+.top .join-top{display:none}
+@media (min-width:760px){.top .join-top{display:inline-flex}}
+
+/* ===== Buttons ===== */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;font:600 16px var(--ui);text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .3s var(--ease),box-shadow .3s var(--ease),background .3s}
+.btn:hover{transform:translateY(-2px)}
+.btn.primary{background:var(--brown);color:var(--cream);box-shadow:0 10px 24px -12px rgb(145 96 59/.7)}
+@media (prefers-color-scheme:dark){.btn.primary{color:#2a1b10}}
+.btn.ghost{background:var(--card);color:var(--ink);border-color:var(--line)}
+.btn.small{padding:8px 16px;font-size:14px}
+.btn.off{opacity:.5;pointer-events:none}
+.btn .i{font-size:20px}
+
+/* ===== Pages ===== */
+.page{display:none}
+.page.on{display:block;animation:pageIn .5s var(--ease)}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ===== Hero ===== */
+.hero{text-align:center;padding-top:72px;padding-bottom:40px}
+.mark{width:120px;height:120px;margin:0 auto 28px;position:relative}
+.mark img{width:100%;height:100%;filter:drop-shadow(0 18px 30px rgb(145 96 59/.35));animation:breathe 7s ease-in-out infinite}
+.mark::before{content:"";position:absolute;inset:-26px;border-radius:50%;border:1.5px solid var(--tint-2);animation:ripple 7s ease-out infinite}
+.mark::after{content:"";position:absolute;inset:-26px;border-radius:50%;border:1.5px solid var(--tint-2);animation:ripple 7s ease-out 3.5s infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@keyframes ripple{0%{transform:scale(.7);opacity:0}20%{opacity:.9}100%{transform:scale(1.5);opacity:0}}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--sage-tint);color:var(--ink);font:600 13px var(--ui);letter-spacing:.02em;margin-bottom:18px}
+.dot{width:8px;height:8px;border-radius:50%;background:#5f8a52;box-shadow:0 0 0 0 rgb(95 138 82/.5);animation:ping 2.4s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 8px rgb(95 138 82/0)}100%{box-shadow:0 0 0 0 rgb(95 138 82/0)}}
+.hero h1{font-size:clamp(40px,7vw,76px);font-weight:800;max-width:14ch;margin:0 auto}
+.hero h1 em{font-style:normal;color:var(--brown);position:relative;white-space:nowrap}
+.hero h1 em::after{content:"";position:absolute;left:2%;right:2%;bottom:.06em;height:.16em;border-radius:99px;background:var(--tint-2);z-index:-1;transform-origin:left;animation:underline 1.4s .5s var(--ease) both}
+@keyframes underline{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.lede{font-size:clamp(17px,2.2vw,20px);color:var(--muted);max-width:40rem;margin:22px auto 30px}
+.ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.focus{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:40px auto 0;max-width:760px;padding:0;list-style:none}
+.focus li{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:var(--card);border:1px solid var(--line);font:500 15px var(--ui);color:var(--ink);box-shadow:var(--shadow)}
+.focus .i{color:var(--brown);font-size:20px}
+
+/* ===== Phones ===== */
+.phones{position:relative;height:clamp(380px,62vw,620px);margin:56px auto 0;max-width:900px}
+.phone{position:absolute;left:50%;bottom:0;width:clamp(170px,27vw,280px);border-radius:clamp(22px,3.4vw,36px);padding:clamp(5px,.8vw,8px);background:#2b241f;box-shadow:var(--shadow-lg);transition:transform .9s var(--ease)}
+.phone img{border-radius:clamp(17px,2.7vw,29px);width:100%;aspect-ratio:540/1099;object-fit:cover;background:var(--card)}
+.phone.l{transform:translateX(-128%) translateY(26px) rotate(-7deg)}
+.phone.m{transform:translateX(-50%);z-index:2}
+.phone.r{transform:translateX(28%) translateY(26px) rotate(7deg)}
+.phones.in .phone.l{transform:translateX(-138%) translateY(40px) rotate(-9deg)}
+.phones.in .phone.r{transform:translateX(38%) translateY(40px) rotate(9deg)}
+.phone{animation:float 9s ease-in-out infinite}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -10px}}
+
+/* ===== Sections ===== */
+section{padding:80px 0}
+.kicker{font:700 13px var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--brown);margin-bottom:12px}
+.sec-h{font-size:clamp(30px,4.4vw,46px);font-weight:800;max-width:22ch}
+.sec-p{color:var(--muted);max-width:40rem;margin:16px 0 0;font-size:18px}
+.center{text-align:center}.center .sec-h,.center .sec-p{margin-left:auto;margin-right:auto}
+.grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:48px}
+@media (min-width:620px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:940px){.grid{grid-template-columns:repeat(3,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:26px;box-shadow:var(--shadow);transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.card .ico{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:var(--tint);color:var(--brown-ink);margin-bottom:16px}
+.card:nth-child(3n+2) .ico{background:var(--sage-tint)}
+.card:nth-child(3n) .ico{background:color-mix(in srgb,var(--sea) 30%,var(--card))}
+.card h3{font-size:20px;margin-bottom:6px}
+.card p{margin:0;color:var(--muted);font-size:16px}
+
+/* ===== Quote band ===== */
+.band{padding:40px 0 0}
+.band blockquote{margin:0 auto;max-width:44rem;text-align:center;font:600 clamp(22px,3vw,30px)/1.4 var(--display);color:var(--ink)}
+.band blockquote span{color:var(--brown)}
+
+/* ===== Closed testing ===== */
+.test{position:relative;overflow:hidden;border-radius:36px;padding:clamp(28px,5vw,56px);background:linear-gradient(135deg,var(--tint) 0%,var(--sage-tint) 100%);box-shadow:var(--shadow)}
+.test::after{content:"";position:absolute;right:-60px;bottom:-60px;width:280px;height:280px;background:url("assets/leaf.svg") center/contain no-repeat;opacity:.1;transform:rotate(-14deg)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:36px 0 30px;padding:0;list-style:none;counter-reset:s;position:relative;z-index:1}
+.steps li{counter-increment:s;background:color-mix(in srgb,var(--card) 82%,transparent);border-radius:20px;padding:20px 20px 20px 66px;position:relative}
+.steps li::before{content:counter(s);position:absolute;left:18px;top:18px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--brown);color:var(--cream);font:800 16px var(--display)}
+@media (prefers-color-scheme:dark){.steps li::before{color:#2a1b10}}
+.steps b{display:block;font-family:var(--display);font-size:18px}
+.steps span{color:var(--muted);font-size:15px}
+.test .ctas{justify-content:flex-start;position:relative;z-index:1}
+.fine{color:var(--muted);font-size:14px;margin:18px 0 0;position:relative;z-index:1}
+
+/* ===== Desktop ===== */
+.desk{display:grid;grid-template-columns:1fr;gap:40px;align-items:center}
+@media (min-width:960px){.desk{grid-template-columns:5fr 7fr}}
+.window{border-radius:18px;overflow:hidden;background:var(--card);box-shadow:var(--shadow-lg);border:1px solid var(--line);transform:perspective(1400px) rotateY(-6deg) rotateX(2deg);transition:transform .9s var(--ease)}
+.window:hover{transform:none}
+.window .bar{height:30px;display:flex;align-items:center;gap:7px;padding:0 12px;background:var(--bg-2)}
+.window .bar i{width:11px;height:11px;border-radius:50%;background:var(--line)}
+.window video{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--bg)}
+.ticks{list-style:none;padding:0;margin:24px 0 28px;display:grid;gap:10px}
+.ticks li{display:flex;gap:10px;align-items:flex-start;color:var(--ink)}
+.ticks .i{color:var(--brown);font-size:20px;margin-top:3px}
+.ver{display:block;color:var(--muted);font-size:14px;margin-top:14px}
+
+/* ===== Legal pages ===== */
+.legal{max-width:760px;margin:0 auto;padding:56px 20px 40px}
+.legal h1{font-size:clamp(32px,5vw,44px);font-weight:800}
+.legal h2{font-size:21px;margin:36px 0 8px}
+.legal .eff{color:var(--muted);margin:8px 0 26px}
+.legal ul{padding-left:22px}
+.legal li{margin:6px 0}
+.legal code{font-size:.88em;background:var(--bg-2);padding:1px 6px;border-radius:6px}
+.legal .paper{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:clamp(22px,4vw,44px);box-shadow:var(--shadow)}
+
+/* ===== Footer ===== */
+footer{padding:56px 0 48px;color:var(--muted);font-size:15px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;border-top:1px solid var(--line);padding-top:32px}
+footer nav{display:flex;flex-wrap:wrap;gap:8px 22px}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--brown)}
+
+/* ===== Reveal on scroll ===== */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.grid .rv:nth-child(2){transition-delay:.06s}.grid .rv:nth-child(3){transition-delay:.12s}
+.grid .rv:nth-child(4){transition-delay:.18s}.grid .rv:nth-child(5){transition-delay:.24s}.grid .rv:nth-child(6){transition-delay:.3s}
+
+@media (max-width:560px){
+  .phone.l{transform:translateX(-118%) translateY(26px) rotate(-7deg)}
+  .phone.r{transform:translateX(18%) translateY(26px) rotate(7deg)}
+  .phones.in .phone.l{transform:translateX(-122%) translateY(34px) rotate(-8deg)}
+  .phones.in .phone.r{transform:translateX(22%) translateY(34px) rotate(8deg)}
+  .focus li{font-size:14px;padding:8px 13px}
+  .tabs a{padding:7px 12px;font-size:14px}
+  .brand span{display:none}
+  section{padding:72px 0}
+  .hero{padding-top:40px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .rv{opacity:1;transform:none}
+  .leaf{display:none}
+}
+</style>
+</head>
+<body>
+<div class="stars" aria-hidden="true"></div>
+<div class="sky" aria-hidden="true"><div class="orb a"></div><div class="orb b"></div><div class="orb c"></div></div>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#home" aria-label="Perennial home"><img src="assets/icon.svg" alt=""><span>Perennial</span></a>
+    <span class="spacer"></span>
+    <nav class="tabs" aria-label="Pages">
+      <span class="pill" aria-hidden="true"></span>
+      <a href="#home" data-page="home">Home</a>
+      <a href="#privacy" data-page="privacy">Privacy</a>
+      <a href="#terms" data-page="terms">Terms</a>
+    </nav>
+    <a class="btn primary small join-top" href="#join" data-link="testing">Join the test</a>
+  </div>
+</header>
+
+<main>
+<!-- ===== Home ===== -->
+<div class="page" id="page-home">
+  <div class="wrap hero">
+    <div class="mark"><img src="assets/icon.svg" alt="Perennial logo"></div>
+    <div class="eyebrow"><span class="dot"></span>Now in closed testing on Android</div>
+    <h1>Notes that <em>grow</em> with you</h1>
+    <p class="lede">Perennial is a calm, private home for your notes, grids and plans. Write it down once, and it's there on your phone, your computer and the web, quietly in sync.</p>
+    <div class="ctas">
+      <a class="btn primary" href="#join"><span class="i">spa</span>Join closed testing</a>
+      <a class="btn ghost" href="#desktop"><span class="i">desktop_windows</span>Get the desktop app</a>
+    </div>
+    <ul class="focus">
+      <li><span class="i">edit_note</span>Rich notes</li>
+      <li><span class="i">grid_on</span>Smart grids</li>
+      <li><span class="i">calendar_month</span>Calendar &amp; reminders</li>
+      <li><span class="i">group</span>Live sharing</li>
+      <li><span class="i">visibility_off</span>Hidden notes</li>
+      <li><span class="i">devices</span>Everywhere you are</li>
+    </ul>
+    <div class="phones" id="phones">
+      <div class="phone l" style="animation-delay:-3s"><img src="assets/phone-calendar.webp" alt="Perennial calendar on Android" loading="lazy"></div>
+      <div class="phone m"><img src="assets/phone-notes.webp" alt="Perennial notes list on Android"></div>
+      <div class="phone r" style="animation-delay:-6s"><img src="assets/phone-editor.webp" alt="Writing a note in Perennial" loading="lazy"></div>
+    </div>
+  </div>
+
+  <div class="band"><div class="wrap"><blockquote class="rv">A quiet place for the things you <span>don't want to forget</span>, and the people you share them with.</blockquote></div></div>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="center rv">
+        <div class="kicker">What it does</div>
+        <h2 class="sec-h">Everything you jot, plan and share, in one calm place</h2>
+        <p class="sec-p">No clutter, no ads, no noise. Just the tools you reach for every day, designed to feel light.</p>
+      </div>
+      <div class="grid">
+        <article class="card rv"><div class="ico"><span class="i">edit_note</span></div><h3>Notes that feel good to write</h3><p>Headings, checklists, highlights, tables, images and voice typing, with pinch-to-zoom text that stays exactly where you left it.</p></article>
+        <article class="card rv"><div class="ico"><span class="i">grid_on</span></div><h3>Grids for the numbers</h3><p>Budgets, trackers and lists in a simple spreadsheet with formulas, right beside your notes.</p></article>
+        <article class="card rv"><div class="ico"><span class="i">calendar_month</span></div><h3>A calendar that knows your notes</h3><p>Turn a note into an event, set reminders, and bring in Google Calendar so everything lives together.</p></article>
+        <article class="card rv"><div class="ico"><span class="i">group</span></div><h3>Share, live</h3><p>Invite people as editors or viewers and write together in real time. Shared notes stay private to the people you choose.</p></article>
+        <article class="card rv"><div class="ico"><span class="i">visibility_off</span></div><h3>Hidden notes</h3><p>Hold the logo to slip into a private space for gifts, journals and anything just for you. Hold again to return.</p></article>
+        <article class="card rv"><div class="ico"><span class="i">auto_awesome</span></div><h3>Gentle AI, only if you want it</h3><p>Fix grammar, tidy a list or turn "dinner Friday at 7" into an event. Off until you turn it on.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="join">
+    <div class="wrap">
+      <div class="test rv">
+        <div class="kicker">Closed testing</div>
+        <h2 class="sec-h">Help Perennial take root</h2>
+        <p class="sec-p">Perennial is in closed testing on Google Play. Join the group, opt in, and you'll get early builds and a direct line to shape what comes next.</p>
+        <ol class="steps">
+          <li><b>Join the group</b><span>Sign in with the Google account you use on your phone.</span></li>
+          <li><b>Opt in on Google Play</b><span>Open the testing link and tap "Become a tester".</span></li>
+          <li><b>Install &amp; explore</b><span>Download Perennial from Play and take the quick tour.</span></li>
+        </ol>
+        <div class="ctas">
+          <a class="btn primary" data-link="group" target="_blank" rel="noopener"><span class="i">group_add</span>Join the Google group</a>
+          <a class="btn ghost" data-link="testing" target="_blank" rel="noopener"><span class="i">shop</span>Become a tester</a>
+          <a class="btn ghost" data-link="web" target="_blank" rel="noopener"><span class="i">language</span>Try it on the web</a>
+        </div>
+        <p class="fine">The testing link only works after you've joined the group with the same Google account.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="desktop">
+    <div class="wrap desk">
+      <div class="rv">
+        <div class="kicker">On your desktop</div>
+        <h2 class="sec-h">Room to think on a bigger screen</h2>
+        <p class="sec-p">The desktop app keeps everything you have on your phone, with space to spread out.</p>
+        <ul class="ticks">
+          <li><span class="i">tab</span>Open several notes and grids side by side in tabs</li>
+          <li><span class="i">swap_horiz</span>Slide between notes and your calendar in a tap</li>
+          <li><span class="i">picture_in_picture</span>Pop out a note to keep it floating while you work</li>
+          <li><span class="i">sync</span>Pick up exactly where you left off on your phone</li>
+        </ul>
+        <a class="btn primary" data-link="download"><span class="i">download</span>Download for desktop</a>
+        <span class="ver"><span data-text="version"></span> · <a data-link="releases" target="_blank" rel="noopener">All versions &amp; release notes</a></span>
+      </div>
+      <div class="window rv">
+        <div class="bar"><i></i><i></i><i></i></div>
+        <video src="assets/perennial-desktop.mp4" poster="assets/perennial-desktop.jpg" autoplay muted loop playsinline aria-label="Perennial desktop app: writing a note, opening a grid and switching to the calendar"></video>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== Privacy ===== -->
+<div class="page" id="page-privacy">
+  <article class="legal"><div class="paper">
+    <h1>Privacy Policy</h1>
+    <p class="eff">Effective November 21, 2026</p>
+    <p>Perennial is a note-taking and calendar app for Android, Windows, Mac and the web. This policy explains what information Perennial collects, how it is used, and the choices you have. Perennial is run by an independent developer, referred to here as "we".</p>
+
+    <h2>What we collect</h2>
+    <ul>
+    <li><b>Account information.</b> Your name, email address and profile photo from Google Sign-In, or the email address you register with. This is used to sign you in and to show your name to people you share notes or events with.</li>
+    <li><b>Your content.</b> The notes, grids, comments, projects, events, reminders, attachments and settings you create. These are stored so they sync across your devices and with the people you choose to share them with.</li>
+    <li><b>Device name.</b> A short name such as "Pixel 9" or "Windows PC", shown in the app as "Edited on…".</li>
+    <li><b>Usage counts.</b> The date you last opened the app and on which kind of device (Android, Windows, Mac or web), and how many AI actions you used today. We use these only to count active users and enforce daily limits. They are not linked to what you write and are not readable by other users.</li>
+    </ul>
+    <p>We do not use advertising, ad identifiers, tracking pixels or third-party analytics, and we never sell your information.</p>
+
+    <h2>AI tools</h2>
+    <p>AI tools are off unless you turn them on. When you use one, our server sends only what that tool needs to Google's Gemini model (through Google Cloud) and returns the result to you:</p>
+    <ul>
+    <li><b>Everyday tools</b> (fix grammar, solve, checklists, clean up, summaries, rewrites, grid formulas, making an event): the text you selected, or the open note if nothing is selected. For grid formulas, the column headers and a few sample values.</li>
+    <li><b>Text to event</b> (a separate setting, off by default): when a line you type looks like it has a date or time, that line and your current date and time zone are sent to find the event. Nothing is sent for other lines.</li>
+    <li><b>Plus tools:</b> Ask your notes and Prep brief send your question or the event details plus the titles and text of the notes that best match it. Suggest a project sends the note and your project names. Scan a photo sends the photo you choose.</li>
+    </ul>
+    <p>We do not keep what is sent after the request, it is not used to train AI models, and only a daily count of AI uses is recorded so we can enforce limits.</p>
+
+    <h2>Connected apps</h2>
+    <p>You can link Perennial to Wayfinder Social, a separate app from the same developer, from the approval screen it opens. Nothing is shared until you approve it. Once linked, Wayfinder Social can read the notes in the scope you choose (one project or all your notes) and, if you allow it, save notes and events into your Perennial account. You can disconnect it at any time in Perennial Settings, which ends its access right away. Deleting your Perennial account also removes every link.</p>
+
+    <h2>Google Calendar</h2>
+    <p>If you choose to connect Google Calendar, Perennial asks Google for permission to:</p>
+    <ul>
+    <li><b>See your calendars and events</b> (<code>calendar.readonly</code>), so your Google events can appear in the Perennial calendar.</li>
+    <li><b>Create and manage a separate "Perennial" calendar</b> (<code>calendar.app.created</code>), used only if you turn on two-way sync, so your Perennial events stay in sync with it. Perennial does not change or delete events in your other calendars.</li>
+    </ul>
+    <p>Copies of event details (title, time, place, description and calendar color) are stored in your Perennial account so they show on all your devices. The permission Google gives Perennial is stored on our server, is never shown to any device, and is used only to keep your calendar in sync. You can disconnect at any time in Perennial Settings, which deletes the stored events and revokes the permission. You can also remove access at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</p>
+    <p>Perennial's use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements. Google Calendar data is used only to provide the calendar features you see in Perennial. It is not used for advertising, not sold, not used to train AI models, and not read by people except when you ask us for help, when needed for security, or when required by law.</p>
+
+    <h2>Reports and blocking</h2>
+    <p>If you report something, we receive the reason you chose, any details you add, a copy of the reported title and text, and the account IDs and emails of you and the person reported. We use this only to review the report and enforce our rules, keep it for up to a year after it's closed, and never tell the other person who reported them. People you block are stored in your account settings so their invites can be turned away. Filtering strong language and blurring images from others happens on your device and sends nothing.</p>
+
+    <h2>Where your data is stored</h2>
+    <p>Perennial stores data with Google Firebase and Google Cloud in the United States. Data is encrypted in transit and at rest. Access to each note or event is limited by security rules to its owner and the people it is shared with.</p>
+
+    <h2>Sharing</h2>
+    <p>Your content is shared only with the people you invite, with the role you choose (editor or viewer), and with any app you connect yourself. We share information with service providers that run Perennial (Google Firebase, Google Cloud, Google's Gemini model for the AI tools you use and, for paid plans, Google Play) only as needed to operate the app, or when required by law.</p>
+
+    <h2>Keeping and deleting your data</h2>
+    <ul>
+    <li>Notes you move to trash are deleted permanently after 30 days, or right away if you choose Delete forever.</li>
+    <li>You can export all your notes at any time in Settings.</li>
+    <li>You can delete your account in Settings → Account &amp; data (steps and details: <a href="https://voksnote.web.app/delete-account.html">delete your account or data</a>). This deletes your notes, events, projects, settings and usage records, disconnects Google Calendar and any connected apps, and removes you from notes others shared with you. Backups held by our hosting provider expire within about 30 days.</li>
+    </ul>
+
+    <h2>Children</h2>
+    <p>Perennial is not directed to children under 13, and we do not knowingly collect information from them.</p>
+
+    <h2>Changes</h2>
+    <p>If this policy changes, we will update the date above and, for significant changes, let you know in the app.</p>
+
+    <h2>Contact</h2>
+    <p>Questions or requests: <a href="mailto:neonamagashi@gmail.com">neonamagashi@gmail.com</a></p>
+  </div></article>
+</div>
+
+<!-- ===== Terms ===== -->
+<div class="page" id="page-terms">
+  <article class="legal"><div class="paper">
+    <h1>Terms of Service</h1>
+    <p class="eff">Effective November 21, 2026</p>
+    <p>By using Perennial you agree to these terms. If you don't agree, please don't use the app.</p>
+
+    <h2>Your account</h2>
+    <p>You're responsible for activity on your account and for keeping your sign-in secure. You must be at least 13 years old to use Perennial.</p>
+
+    <h2>Your content</h2>
+    <p>You own what you write. You give Perennial permission to store, sync and display your content only so the app can work for you and the people you share with. You're responsible for what you share and for having the right to share it.</p>
+
+    <h2>Acceptable use</h2>
+    <p>Perennial is for your own notes and for working with people you choose. Anything you share with others must follow these rules. Don't use Perennial to create, store or share:</p>
+    <ul>
+    <li>Sexually explicit content or nudity.</li>
+    <li>Any content that sexualizes, exploits or endangers minors. We report this to the authorities and close the account immediately.</li>
+    <li>Graphic violence or gore, or threats of violence.</li>
+    <li>Harassment, bullying, or hate directed at people because of who they are.</li>
+    <li>Content that promotes self-harm, terrorism or other dangerous acts.</li>
+    <li>Illegal content, scams, spam, malware, or anything that infringes someone else's rights.</li>
+    </ul>
+    <p>Don't try to access accounts or data that aren't yours, and don't interfere with how Perennial runs.</p>
+    <p><b>Reporting and blocking.</b> You can report a shared note, event, invite or person from its menu, and block anyone so their invites stop reaching you and you leave what they've shared. We review reports and may remove content, limit sharing, or suspend or close accounts that break these rules, with or without notice.</p>
+
+    <h2>Free plan and Perennial Plus</h2>
+    <p>The free plan includes notes, sync, sharing, the calendar and reminders, with limits on attachment size and daily AI use. Perennial Plus is an optional paid subscription with higher limits, billed through Google Play. You can cancel any time in Google Play; access continues until the end of the paid period. Refunds follow Google Play's policies.</p>
+
+    <h2>AI tools</h2>
+    <p>AI suggestions can be wrong. Review them before relying on them, especially for math, money, health or legal matters.</p>
+
+    <h2>Third-party services</h2>
+    <p>Features such as Google Sign-In and Google Calendar are provided by Google and are also subject to Google's terms.</p>
+
+    <h2>Availability</h2>
+    <p>We work to keep Perennial reliable, but the app is provided "as is", without warranties. Keep your own exports of anything important. To the extent the law allows, we aren't liable for lost data or indirect damages from using the app.</p>
+
+    <h2>Changes and ending</h2>
+    <p>We may update these terms and will change the date above when we do. You can stop using Perennial and delete your account at any time.</p>
+
+    <h2>Contact</h2>
+    <p><a href="mailto:neonamagashi@gmail.com">neonamagashi@gmail.com</a></p>
+  </div></article>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#home"><img src="assets/icon.svg" alt="" style="width:28px;height:28px"><span style="font-size:18px">Perennial</span></a>
+    <nav>
+      <a href="#privacy">Privacy</a>
+      <a href="#terms">Terms</a>
+      <a href="https://voksnote.web.app/delete-account.html">Delete your data</a>
+      <a href="mailto:neonamagashi@gmail.com">Contact</a>
+    </nav>
+    <span class="spacer"></span>
+    <span>© <span id="yr"></span> Perennial</span>
+  </div>
+</footer>
+
+<script>
+// ===== Links: paste yours here; an empty one shows its button as "coming soon" =====
+const LINKS = {
+  group: "",
+  testing: "https://play.google.com/apps/testing/com.neonamagashi.perennial",
+  web: "https://voksnote.web.app",
+  download: "",
+  releases: "",
+  version: "Version 0.21.2 · Windows"
+};
+
+document.querySelectorAll("[data-link]").forEach(a => {
+  const url = LINKS[a.dataset.link];
+  if (a.getAttribute("href") === "#join") return;
+  if (url) a.href = url;
+  else { a.classList.add("off"); a.removeAttribute("href"); a.setAttribute("aria-disabled", "true"); a.title = "Coming soon"; }
+});
+document.querySelectorAll("[data-text]").forEach(el => { el.textContent = LINKS[el.dataset.text] || ""; });
+document.getElementById("yr").textContent = new Date().getFullYear();
+
+// ===== Tabs: Home, Privacy and Terms swap in place =====
+const PAGES = ["home", "privacy", "terms"];
+const pill = document.querySelector(".tabs .pill");
+const movePill = a => { pill.style.width = a.offsetWidth + "px"; pill.style.transform = `translateX(${a.offsetLeft - 4}px)`; };
+function route() {
+  const hash = location.hash.slice(1);
+  const page = PAGES.includes(hash) ? hash : "home";
+  const current = document.querySelector(".page.on");
+  const next = document.getElementById("page-" + page);
+  if (current !== next) {
+    current?.classList.remove("on");
+    next.classList.add("on");
+    if (PAGES.includes(hash) || !hash) scrollTo({ top: 0, behavior: current ? "smooth" : "auto" });
+    reveal();
+    requestAnimationFrame(scatter);
+  }
+  if (page === "home" && hash && !PAGES.includes(hash)) requestAnimationFrame(() => document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" }));
+  document.querySelectorAll(".tabs a").forEach(a => {
+    const on = a.dataset.page === page;
+    on ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current");
+    if (on) movePill(a);
+  });
+  document.title = page === "home" ? "Perennial — notes that grow with you" : `Perennial — ${page === "privacy" ? "Privacy Policy" : "Terms of Service"}`;
+}
+addEventListener("hashchange", route);
+addEventListener("resize", () => movePill(document.querySelector('.tabs a[aria-current="page"]')));
+
+// ===== Motion: reveal on scroll, phones fan out, falling leaves =====
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .15 });
+function reveal() { document.querySelectorAll(".page.on .rv:not(.in), .page.on #phones:not(.in)").forEach(el => io.observe(el)); }
+const bar = document.querySelector(".top");
+addEventListener("scroll", () => bar.classList.toggle("scrolled", scrollY > 8), { passive: true });
+
+// ===== Leaf stars: scattered across the whole page, one chance per cell so they spread out without a pattern =====
+const leaf = `<svg viewBox="0 0 24 24"><path d="M10.77 21.58Q7.39 20.78 4.96 18.23Q2.52 15.68 2.07 11.33Q2.04 11.05 2.12 10.84Q2.37 10.48 2.77 10.24Q2.99 10.15 3.24 10.2Q7.67 10.8 9.91 13.7Q12.14 16.6 12.07 20.55Q12.07 20.83 11.97 21.03Q11.67 21.38 11.27 21.56Q11.04 21.63 10.77 21.58ZM11.97 14.15Q11.42 13.2 10.46 12.09Q9.49 10.98 8.42 10.55Q8.47 8.95 9.29 6.75Q10.12 4.55 11.24 2.83Q11.59 2.5 11.99 2.4Q12.41 2.5 12.74 2.83Q13.89 4.55 14.71 6.76Q15.52 8.98 15.57 10.55Q14.52 10.98 13.51 12.09Q12.49 13.2 11.97 14.15ZM13.52 21.5Q13.64 20.08 13.46 18.51Q13.27 16.95 12.82 15.75Q13.69 13.8 15.68 12.23Q17.67 10.65 20.74 10.2Q21.23 10.24 21.62 10.48Q21.88 10.84 21.92 11.33Q21.49 15.6 19.12 18.1Q16.74 20.6 13.52 21.5Z"/></svg>`;
+const starLayer = document.querySelector(".stars");
+const rnd = (a, b) => a + Math.random() * (b - a);
+let starW = 0;
+function scatter() {
+  starW = innerWidth;
+  starLayer.style.height = "0px";
+  const h = document.documentElement.scrollHeight, w = document.documentElement.clientWidth;
+  const cell = Math.max(150, Math.min(240, w / 6));
+  starLayer.style.height = h + "px";
+  starLayer.innerHTML = "";
+  for (let y = 0; y < h; y += cell) for (let x = 0; x < w; x += cell) {
+    if (Math.random() > .36) continue;
+    const el = document.createElement("i");
+    el.className = "star";
+    el.innerHTML = leaf;
+    const size = rnd(11, 20);
+    el.style.cssText = `left:${x + rnd(0, cell - size)}px;top:${y + rnd(0, cell - size)}px;width:${size}px;height:${size}px;--o:${rnd(.14, .32).toFixed(2)};--r:${rnd(-50, 50).toFixed(0)}deg;--d:${rnd(5, 11).toFixed(1)}s;--dl:${(-rnd(0, 11)).toFixed(1)}s`;
+    starLayer.append(el);
+  }
+}
+addEventListener("load", scatter);
+addEventListener("resize", () => { if (innerWidth !== starW) scatter(); });
+
+if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  const sky = document.querySelector(".sky");
+  for (let k = 0; k < 7; k++) {
+    const el = document.createElement("div");
+    el.className = "leaf";
+    el.innerHTML = leaf;
+    const s = 14 + Math.random() * 14;
+    Object.assign(el.style, { left: `${Math.random() * 100}%`, width: `${s}px`, height: `${s}px`, animationDuration: `${22 + Math.random() * 18}s`, animationDelay: `${-Math.random() * 30}s` });
+    sky.append(el);
+  }
+}
+
+route();
+</script>
+</body>
+</html>
