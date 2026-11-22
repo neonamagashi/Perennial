@@ -1,2 +1,0 @@
-# Perennial
-Perennial privacy policy.
